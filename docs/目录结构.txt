@@ -1,0 +1,118 @@
+smart-planning-assistant/
+├── 📚 文档/
+│   ├── 需求分析文档.md
+│   ├── 概要设计文档.md
+│   ├── 详细设计文档.md
+│   ├── 接口设计文档.md
+│   ├── 数据库设计文档.md
+│   ├── 项目开发计划.md
+│   └── API文档/
+│       └── openapi.yaml
+├── 🔧 后端服务/
+│   ├── api-gateway/                 # API网关服务
+│   │   ├── src/
+│   │   ├── package.json
+│   │   └── Dockerfile
+│   ├── user-service/                # 用户服务
+│   │   ├── src/
+│   │   │   ├── controllers/
+│   │   │   ├── services/
+│   │   │   ├── models/
+│   │   │   ├── middleware/
+│   │   │   └── config/
+│   │   ├── tests/
+│   │   ├── package.json
+│   │   └── Dockerfile
+│   ├── task-service/                # 任务管理服务
+│   ├── plan-service/                # 计划生成服务
+│   ├── analytics-service/           # 数据分析服务
+│   ├── auth-service/                # 认证服务
+│   └── shared/                      # 共享库
+│       ├── common-utils/
+│       ├── data-models/
+│       └── database-client/
+├── 🧠 算法引擎/
+│   ├── core-algorithm/              # 核心算法
+│   │   ├── src/
+│   │   │   ├── optimization/
+│   │   │   ├── evaluation/
+│   │   │   └── strategies/
+│   │   ├── tests/
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   ├── ml-models/                   # 机器学习模型
+│   └── performance-optimized/       # 性能优化模块(C++)
+│       ├── src/
+│       └── bindings/
+├── 💻 前端应用/
+│   ├── web-app/                     # Web前端
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── views/
+│   │   │   ├── stores/
+│   │   │   ├── utils/
+│   │   │   └── types/
+│   │   ├── public/
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   └── mobile-app/                  # 移动端
+│       ├── src/
+│       ├── ios/
+│       ├── android/
+│       └── package.json
+├── 🗄️ 数据库/
+│   ├── migrations/                  # 数据库迁移脚本
+│   ├── seeds/                       # 初始数据
+│   └── scripts/
+│       ├── backup.sh
+│       └── restore.sh
+├── 🐳 部署配置/
+│   ├── docker/
+│   │   ├── docker-compose.yml
+│   │   ├── docker-compose.dev.yml
+│   │   └── Dockerfile.*
+│   ├── kubernetes/
+│   │   ├── deployments/
+│   │   ├── services/
+│   │   ├── configmaps/
+│   │   └── ingress/
+│   └── helm/
+│       └── smart-planning-assistant/
+├️ ⚙️ 基础设施/
+│   ├── ci-cd/                       # CI/CD配置
+│   │   ├── Jenkinsfile
+│   │   ├── .github/workflows/
+│   │   └── gitlab-ci.yml
+│   ├── monitoring/                  # 监控配置
+│   │   ├── prometheus/
+│   │   ├── grafana/
+│   │   └── alerts/
+│   └── terraform/                   # 基础设施即代码
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+├── 🧪 测试/
+│   ├── unit-tests/
+│   ├── integration-tests/
+│   ├── e2e-tests/
+│   └── performance-tests/
+├── 📊 数据分析/
+│   ├── notebooks/                   # Jupyter notebooks
+│   ├── scripts/
+│   └── reports/
+├── 🔐 安全/
+│   ├── security-scan.sh
+│   ├── penetration-tests/
+│   └── compliance/
+├── 📦 脚本工具/
+│   ├── build.sh
+│   ├── deploy.sh
+│   ├── database-migrate.sh
+│   └── health-check.sh
+└── 📝 配置文件/
+    ├── .env.example
+    ├── .env.development
+    ├── .env.production
+    ├── .gitignore
+    ├── .dockerignore
+    └── package.json (root)
