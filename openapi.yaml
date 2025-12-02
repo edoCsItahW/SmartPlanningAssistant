@@ -1,0 +1,1880 @@
+openapi: 3.0.0
+info:
+    title: 智能计划助手 API
+    description: 基于行为科学的智能计划生成系统
+    version: 1.0.0
+    contact:
+        name: 开发团队
+        email: dev@smartplan.com
+    license:
+        name: MIT
+        url: https://opensource.org/licenses/MIT
+
+servers:
+    - url: https://api.smartplan.com/v1
+      description: 生产环境
+    - url: https://staging-api.smartplan.com/v1
+      description: 测试环境
+    - url: http://localhost:8080/v1
+      description: 开发环境
+
+components:
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+
+    schemas:
+        # 通用响应模型
+        ApiResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                    example: 200
+                message:
+                    type: string
+                    example: "success"
+                data:
+                    type: object
+                timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-12-19T10:30:00Z"
+
+        ErrorResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                    example: 400
+                message:
+                    type: string
+                    example: "参数验证失败"
+                errors:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            field:
+                                type: string
+                                example: "title"
+                            message:
+                                type: string
+                                example: "任务标题不能为空"
+                timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-12-19T10:30:00Z"
+
+        # 分页响应模型
+        PageResponse:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    example: 1
+                size:
+                    type: integer
+                    example: 20
+                total:
+                    type: integer
+                    example: 100
+                pages:
+                    type: integer
+                    example: 5
+                content:
+                    type: array
+
+        # 认证相关模型
+        UserRegistration:
+            type: object
+            required:
+                - email
+                - username
+                - password
+            properties:
+                email:
+                    type: string
+                    format: email
+                    example: "user@example.com"
+                username:
+                    type: string
+                    example: "john_doe"
+                password:
+                    type: string
+                    format: password
+                    example: "SecurePass123!"
+                firstName:
+                    type: string
+                    example: "John"
+                lastName:
+                    type: string
+                    example: "Doe"
+                timezone:
+                    type: string
+                    example: "Asia/Shanghai"
+                language:
+                    type: string
+                    example: "zh-CN"
+
+        LoginRequest:
+            type: object
+            required:
+                - email
+                - password
+            properties:
+                email:
+                    type: string
+                    format: email
+                    example: "user@example.com"
+                password:
+                    type: string
+                    format: password
+                    example: "SecurePass123!"
+
+        AuthResponse:
+            type: object
+            properties:
+                token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                expiresIn:
+                    type: integer
+                    example: 86400
+                user:
+                    $ref: '#/components/schemas/UserProfile'
+
+        # 用户相关模型
+        UserProfile:
+            type: object
+            properties:
+                id:
+                    type: string
+                    example: "user_123456"
+                email:
+                    type: string
+                    example: "user@example.com"
+                username:
+                    type: string
+                    example: "john_doe"
+                firstName:
+                    type: string
+                    example: "John"
+                lastName:
+                    type: string
+                    example: "Doe"
+                timezone:
+                    type: string
+                    example: "Asia/Shanghai"
+                language:
+                    type: string
+                    example: "zh-CN"
+                preferences:
+                    $ref: '#/components/schemas/UserPreferences'
+                accountStatus:
+                    type: string
+                    enum: [ACTIVE, INACTIVE, SUSPENDED]
+                    example: "ACTIVE"
+                emailVerified:
+                    type: boolean
+                    example: true
+                lastLoginAt:
+                    type: string
+                    format: date-time
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+
+        UserPreferences:
+            type: object
+            properties:
+                dailyStartTime:
+                    type: string
+                    format: time
+                    example: "09:00:00"
+                dailyEndTime:
+                    type: string
+                    format: time
+                    example: "18:00:00"
+                workDays:
+                    type: array
+                    items:
+                        type: string
+                        enum: [MON, TUE, WED, THU, FRI, SAT, SUN]
+                    example: ["MON", "TUE", "WED", "THU", "FRI"]
+                breakDurationMinutes:
+                    type: integer
+                    example: 15
+                maxDailyWorkHours:
+                    type: integer
+                    example: 8
+                preferredStrategy:
+                    type: string
+                    enum: [EFFICIENCY, HEALTH, FLOW, MOTIVATION]
+                    example: "EFFICIENCY"
+                cognitiveLoadThreshold:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.7
+                energyBalancePriority:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.5
+
+        PasswordChangeRequest:
+            type: object
+            required:
+                - currentPassword
+                - newPassword
+            properties:
+                currentPassword:
+                    type: string
+                    format: password
+                newPassword:
+                    type: string
+                    format: password
+
+        # 任务相关模型
+        Task:
+            type: object
+            required:
+                - title
+                - urgencyLevel
+                - importanceLevel
+                - estimatedDuration
+                - taskType
+            properties:
+                id:
+                    type: string
+                    example: "task_123456"
+                userId:
+                    type: string
+                    example: "user_123456"
+                title:
+                    type: string
+                    example: "完成项目报告"
+                description:
+                    type: string
+                    example: "编写项目总结报告并提交"
+                urgencyLevel:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 4
+                importanceLevel:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 5
+                estimatedDuration:
+                    type: integer
+                    description: "预计时长(分钟)"
+                    example: 120
+                taskType:
+                    type: string
+                    enum: [CREATIVE, REPETITIVE, LEARNING, PHYSICAL, MEETING]
+                    example: "CREATIVE"
+                cognitiveLoadScore:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.7
+                energyCostScore:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.6
+                intrinsicMotivationScore:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.8
+                contextSwitchCost:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.5
+                procrastinationTendency:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.3
+                deadline:
+                    type: string
+                    format: date
+                    example: "2024-12-25"
+                status:
+                    type: string
+                    enum: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED]
+                    example: "PENDING"
+                tags:
+                    type: array
+                    items:
+                        type: string
+                    example: ["工作", "重要"]
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+
+        CreateTaskRequest:
+            type: object
+            required:
+                - title
+                - urgencyLevel
+                - importanceLevel
+                - estimatedDuration
+                - taskType
+            properties:
+                title:
+                    type: string
+                    maxLength: 255
+                    example: "完成项目报告"
+                description:
+                    type: string
+                    maxLength: 1000
+                    example: "编写项目总结报告并提交"
+                urgencyLevel:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 4
+                importanceLevel:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 5
+                estimatedDuration:
+                    type: integer
+                    description: "预计时长(分钟)"
+                    example: 120
+                taskType:
+                    type: string
+                    enum: [CREATIVE, REPETITIVE, LEARNING, PHYSICAL, MEETING]
+                    example: "CREATIVE"
+                deadline:
+                    type: string
+                    format: date
+                    example: "2024-12-25"
+                tags:
+                    type: array
+                    items:
+                        type: string
+                    example: ["工作", "重要"]
+
+        TaskEvaluationRequest:
+            type: object
+            properties:
+                cognitiveLoadRating:
+                    type: integer
+                    minimum: 1
+                    maximum: 10
+                    example: 7
+                energyCostRating:
+                    type: integer
+                    minimum: 1
+                    maximum: 10
+                    example: 6
+                intrinsicMotivationRating:
+                    type: integer
+                    minimum: 1
+                    maximum: 10
+                    example: 8
+                contextSwitchDifficulty:
+                    type: integer
+                    minimum: 1
+                    maximum: 10
+                    example: 5
+                procrastinationTendency:
+                    type: integer
+                    minimum: 1
+                    maximum: 10
+                    example: 3
+
+        # 标签相关模型
+        Tag:
+            type: object
+            properties:
+                id:
+                    type: string
+                    example: "tag_123456"
+                name:
+                    type: string
+                    example: "工作"
+                color:
+                    type: string
+                    example: "#FF6B6B"
+                taskCount:
+                    type: integer
+                    example: 12
+                createdAt:
+                    type: string
+                    format: date-time
+
+        CreateTagRequest:
+            type: object
+            required:
+                - name
+            properties:
+                name:
+                    type: string
+                    example: "健身"
+                color:
+                    type: string
+                    example: "#45B7D1"
+
+        # 计划相关模型
+        Plan:
+            type: object
+            properties:
+                id:
+                    type: string
+                    example: "plan_123456"
+                userId:
+                    type: string
+                    example: "user_123456"
+                planDate:
+                    type: string
+                    format: date
+                    example: "2024-12-20"
+                strategyType:
+                    type: string
+                    enum: [EFFICIENCY, HEALTH, FLOW, MOTIVATION]
+                    example: "EFFICIENCY"
+                qualityScore:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 1
+                    example: 0.85
+                totalScheduledDuration:
+                    type: integer
+                    description: "总计划时长(分钟)"
+                    example: 420
+                totalBreaksDuration:
+                    type: integer
+                    description: "总休息时长(分钟)"
+                    example: 45
+                cognitiveLoadAvg:
+                    type: number
+                    format: float
+                    example: 0.65
+                energyCostAvg:
+                    type: number
+                    format: float
+                    example: 0.58
+                planStatus:
+                    type: string
+                    enum: [GENERATED, ADJUSTED, EXECUTING, COMPLETED]
+                    example: "GENERATED"
+                tasksSchedule:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ScheduledTask'
+                planMetrics:
+                    $ref: '#/components/schemas/PlanMetrics'
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+
+        ScheduledTask:
+            type: object
+            properties:
+                taskId:
+                    type: string
+                    example: "task_123456"
+                title:
+                    type: string
+                    example: "完成项目报告"
+                taskType:
+                    type: string
+                    enum: [CREATIVE, REPETITIVE, LEARNING, PHYSICAL, MEETING, BREAK]
+                    example: "CREATIVE"
+                scheduledStart:
+                    type: string
+                    format: date-time
+                    example: "2024-12-20T09:00:00Z"
+                scheduledEnd:
+                    type: string
+                    format: date-time
+                    example: "2024-12-20T11:00:00Z"
+                urgencyLevel:
+                    type: integer
+                    example: 4
+                importanceLevel:
+                    type: integer
+                    example: 5
+                cognitiveLoadScore:
+                    type: number
+                    format: float
+                    example: 0.7
+                energyCostScore:
+                    type: number
+                    format: float
+                    example: 0.6
+
+        PlanMetrics:
+            type: object
+            properties:
+                completionPriorityScore:
+                    type: number
+                    format: float
+                    example: 0.9
+                scheduleStabilityScore:
+                    type: number
+                    format: float
+                    example: 0.8
+                cognitiveLoadScore:
+                    type: number
+                    format: float
+                    example: 0.7
+                energyBalanceScore:
+                    type: number
+                    format: float
+                    example: 0.75
+                behavioralFactorsScore:
+                    type: number
+                    format: float
+                    example: 0.85
+
+        PlanGenerationRequest:
+            type: object
+            required:
+                - planDate
+                - strategyType
+            properties:
+                planDate:
+                    type: string
+                    format: date
+                    example: "2024-12-20"
+                strategyType:
+                    type: string
+                    enum: [EFFICIENCY, HEALTH, FLOW, MOTIVATION]
+                    example: "EFFICIENCY"
+                includePendingTasks:
+                    type: boolean
+                    example: true
+                customTasks:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CustomTask'
+
+        CustomTask:
+            type: object
+            properties:
+                title:
+                    type: string
+                    example: "临时会议"
+                estimatedDuration:
+                    type: integer
+                    example: 60
+                taskType:
+                    type: string
+                    enum: [CREATIVE, REPETITIVE, LEARNING, PHYSICAL, MEETING]
+                    example: "MEETING"
+
+        PlanAdjustmentRequest:
+            type: object
+            properties:
+                adjustments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TaskAdjustment'
+
+        TaskAdjustment:
+            type: object
+            properties:
+                taskId:
+                    type: string
+                    example: "task_123456"
+                newStartTime:
+                    type: string
+                    format: date-time
+                    example: "2024-12-20T10:00:00Z"
+                newEndTime:
+                    type: string
+                    format: date-time
+                    example: "2024-12-20T12:00:00Z"
+                action:
+                    type: string
+                    enum: [REMOVE, RESCHEDULE]
+                    example: "RESCHEDULE"
+
+        PlanFeedbackRequest:
+            type: object
+            properties:
+                overallSatisfaction:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 4
+                taskFeedback:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TaskFeedback'
+                planFeedback:
+                    $ref: '#/components/schemas/PlanFeedback'
+
+        TaskFeedback:
+            type: object
+            properties:
+                taskId:
+                    type: string
+                    example: "task_123456"
+                actualStartTime:
+                    type: string
+                    format: date-time
+                    example: "2024-12-20T09:15:00Z"
+                actualEndTime:
+                    type: string
+                    format: date-time
+                    example: "2024-12-20T11:00:00Z"
+                completionStatus:
+                    type: string
+                    enum: [COMPLETED, PARTIAL, FAILED, SKIPPED]
+                    example: "COMPLETED"
+                completionPercentage:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                    example: 100
+                difficultyRating:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 3
+                energyLevel:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 2
+                satisfactionRating:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 4
+                notes:
+                    type: string
+                    example: "比预期提前完成"
+
+        PlanFeedback:
+            type: object
+            properties:
+                scheduleRealistic:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 4
+                energyBalance:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 3
+                focusTime:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                    example: 5
+                generalComments:
+                    type: string
+                    example: "整体安排合理，但下午任务较多"
+
+        # 任务执行相关模型
+        TaskCompletionRequest:
+            type: object
+            properties:
+                completionPercentage:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                    example: 100
+                actualEnd:
+                    type: string
+                    format: date-time
+                    example: "2024-12-20T11:00:00Z"
+                notes:
+                    type: string
+                    example: "任务顺利完成"
+
+        ProgressUpdateRequest:
+            type: object
+            properties:
+                completionPercentage:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                    example: 50
+                notes:
+                    type: string
+                    example: "已完成一半"
+
+        # 数据分析相关模型
+        AnalyticsOverview:
+            type: object
+            properties:
+                taskStatistics:
+                    $ref: '#/components/schemas/TaskStatistics'
+                planStatistics:
+                    $ref: '#/components/schemas/PlanStatistics'
+                productivityTrends:
+                    $ref: '#/components/schemas/ProductivityTrends'
+                insights:
+                    type: array
+                    items:
+                        type: string
+                    example: ["您在周二和周四的工作效率最高", "创造性任务通常在上午完成效果更好"]
+
+        TaskStatistics:
+            type: object
+            properties:
+                totalTasks:
+                    type: integer
+                    example: 45
+                completedTasks:
+                    type: integer
+                    example: 32
+                completionRate:
+                    type: number
+                    format: float
+                    example: 0.71
+                averageCompletionTime:
+                    type: integer
+                    example: 95
+                onTimeCompletionRate:
+                    type: number
+                    format: float
+                    example: 0.68
+
+        PlanStatistics:
+            type: object
+            properties:
+                totalPlans:
+                    type: integer
+                    example: 30
+                averageQualityScore:
+                    type: number
+                    format: float
+                    example: 0.78
+                mostUsedStrategy:
+                    type: string
+                    example: "EFFICIENCY"
+                userAdjustmentRate:
+                    type: number
+                    format: float
+                    example: 0.15
+
+        ProductivityTrends:
+            type: object
+            properties:
+                weeklyCompletionRate:
+                    type: array
+                    items:
+                        type: number
+                        format: float
+                    example: [0.65, 0.72, 0.68, 0.75, 0.71]
+                dailyFocusHours:
+                    type: array
+                    items:
+                        type: number
+                        format: float
+                    example: [4.2, 5.1, 3.8, 4.9, 4.5]
+
+        # 系统相关模型
+        HealthCheckResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                    enum: [UP, DOWN]
+                    example: "UP"
+                components:
+                    type: object
+                    properties:
+                        database:
+                            type: string
+                            example: "UP"
+                        redis:
+                            type: string
+                            example: "UP"
+                        algorithmService:
+                            type: string
+                            example: "UP"
+                timestamp:
+                    type: string
+                    format: date-time
+                version:
+                    type: string
+                    example: "1.0.0"
+
+        SystemInfo:
+            type: object
+            properties:
+                name:
+                    type: string
+                    example: "智能计划助手"
+                version:
+                    type: string
+                    example: "1.0.0"
+                environment:
+                    type: string
+                    example: "production"
+                buildTime:
+                    type: string
+                    format: date-time
+                uptime:
+                    type: string
+                    example: "7d 12h 30m"
+                supportedStrategies:
+                    type: array
+                    items:
+                        type: string
+                    example: ["EFFICIENCY", "HEALTH", "FLOW", "MOTIVATION"]
+                maxTasksPerPlan:
+                    type: integer
+                    example: 20
+                maxPlanDuration:
+                    type: integer
+                    example: 600
+
+    parameters:
+        PageParam:
+            name: page
+            in: query
+            description: 页码
+            required: false
+            schema:
+                type: integer
+                minimum: 1
+                default: 1
+        SizeParam:
+            name: size
+            in: query
+            description: 每页大小
+            required: false
+            schema:
+                type: integer
+                minimum: 1
+                maximum: 100
+                default: 20
+        TaskIdParam:
+            name: taskId
+            in: path
+            required: true
+            schema:
+                type: string
+        PlanIdParam:
+            name: planId
+            in: path
+            required: true
+            schema:
+                type: string
+        TagIdParam:
+            name: tagId
+            in: path
+            required: true
+            schema:
+                type: string
+        ExecutionIdParam:
+            name: executionId
+            in: path
+            required: true
+            schema:
+                type: string
+        DateParam:
+            name: date
+            in: path
+            required: true
+            schema:
+                type: string
+                format: date
+
+    headers:
+        RequestId:
+            description: 请求追踪ID
+            schema:
+                type: string
+                format: uuid
+        ClientVersion:
+            description: 客户端版本
+            schema:
+                type: string
+                example: "1.0.0"
+
+paths:
+    # 认证授权接口
+    /auth/register:
+        post:
+            summary: 用户注册
+            description: 创建新用户账户
+            tags:
+                - 认证
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserRegistration'
+            responses:
+                '201':
+                    description: 用户注册成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/UserProfile'
+                '400':
+                    description: 参数验证失败
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '409':
+                    description: 用户已存在
+
+    /auth/login:
+        post:
+            summary: 用户登录
+            description: 用户登录并获取访问令牌
+            tags:
+                - 认证
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginRequest'
+            responses:
+                '200':
+                    description: 登录成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/AuthResponse'
+                '401':
+                    description: 认证失败
+
+    /auth/refresh:
+        post:
+            summary: 刷新Token
+            description: 使用刷新令牌获取新的访问令牌
+            tags:
+                - 认证
+            security:
+                - BearerAuth: []
+            responses:
+                '200':
+                    description: Token刷新成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  token:
+                                                      type: string
+                                                  expiresIn:
+                                                      type: integer
+
+    /auth/logout:
+        post:
+            summary: 退出登录
+            description: 用户退出登录，使令牌失效
+            tags:
+                - 认证
+            security:
+                - BearerAuth: []
+            responses:
+                '200':
+                    description: 退出登录成功
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ApiResponse'
+
+    # 用户管理接口
+    /users/me:
+        get:
+            summary: 获取用户信息
+            description: 获取当前登录用户的详细信息
+            tags:
+                - 用户
+            security:
+                - BearerAuth: []
+            responses:
+                '200':
+                    description: 成功获取用户信息
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/UserProfile'
+
+        put:
+            summary: 更新用户信息
+            description: 更新当前登录用户的基本信息
+            tags:
+                - 用户
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                firstName:
+                                    type: string
+                                lastName:
+                                    type: string
+                                timezone:
+                                    type: string
+                                language:
+                                    type: string
+            responses:
+                '200':
+                    description: 用户信息更新成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/UserProfile'
+
+    /users/me/preferences:
+        put:
+            summary: 更新用户偏好
+            description: 更新当前登录用户的偏好设置
+            tags:
+                - 用户
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPreferences'
+            responses:
+                '200':
+                    description: 用户偏好更新成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  preferences:
+                                                      $ref: '#/components/schemas/UserPreferences'
+                                                  updatedAt:
+                                                      type: string
+                                                      format: date-time
+
+    /users/me/password:
+        put:
+            summary: 修改密码
+            description: 修改当前登录用户的密码
+            tags:
+                - 用户
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PasswordChangeRequest'
+            responses:
+                '200':
+                    description: 密码修改成功
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ApiResponse'
+
+    # 任务管理接口
+    /tasks:
+        get:
+            summary: 获取任务列表
+            description: 获取当前用户的任务列表，支持分页和筛选
+            tags:
+                - 任务
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/PageParam'
+                - $ref: '#/components/parameters/SizeParam'
+                - name: status
+                  in: query
+                  schema:
+                      type: string
+                      enum: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED]
+                - name: urgencyLevel
+                  in: query
+                  schema:
+                      type: integer
+                      minimum: 1
+                      maximum: 5
+                - name: importanceLevel
+                  in: query
+                  schema:
+                      type: integer
+                      minimum: 1
+                      maximum: 5
+                - name: taskType
+                  in: query
+                  schema:
+                      type: string
+                      enum: [CREATIVE, REPETITIVE, LEARNING, PHYSICAL, MEETING]
+                - name: tag
+                  in: query
+                  schema:
+                      type: string
+                - name: sortBy
+                  in: query
+                  schema:
+                      type: string
+                      enum: [createdAt, urgencyLevel, importanceLevel]
+                - name: sortOrder
+                  in: query
+                  schema:
+                      type: string
+                      enum: [asc, desc]
+            responses:
+                '200':
+                    description: 成功获取任务列表
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              allOf:
+                                                  - $ref: '#/components/schemas/PageResponse'
+                                                  - type: object
+                                                    properties:
+                                                        content:
+                                                            type: array
+                                                            items:
+                                                                $ref: '#/components/schemas/Task'
+
+        post:
+            summary: 创建任务
+            description: 创建新的任务
+            tags:
+                - 任务
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateTaskRequest'
+            responses:
+                '201':
+                    description: 任务创建成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Task'
+
+    /tasks/{taskId}:
+        get:
+            summary: 获取任务详情
+            description: 获取指定任务的详细信息
+            tags:
+                - 任务
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/TaskIdParam'
+            responses:
+                '200':
+                    description: 成功获取任务详情
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Task'
+
+        put:
+            summary: 更新任务
+            description: 更新指定任务的信息
+            tags:
+                - 任务
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/TaskIdParam'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                title:
+                                    type: string
+                                description:
+                                    type: string
+                                urgencyLevel:
+                                    type: integer
+                                importanceLevel:
+                                    type: integer
+                                estimatedDuration:
+                                    type: integer
+                                status:
+                                    type: string
+                                tags:
+                                    type: array
+                                    items:
+                                        type: string
+            responses:
+                '200':
+                    description: 任务更新成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Task'
+
+        delete:
+            summary: 删除任务
+            description: 删除指定的任务
+            tags:
+                - 任务
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/TaskIdParam'
+            responses:
+                '200':
+                    description: 任务删除成功
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ApiResponse'
+
+    /tasks/{taskId}/evaluate:
+        post:
+            summary: 评估任务属性
+            description: 评估任务的心理和行为属性
+            tags:
+                - 任务
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/TaskIdParam'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TaskEvaluationRequest'
+            responses:
+                '200':
+                    description: 任务属性评估成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  cognitiveLoadScore:
+                                                      type: number
+                                                  energyCostScore:
+                                                      type: number
+                                                  intrinsicMotivationScore:
+                                                      type: number
+                                                  contextSwitchCost:
+                                                      type: number
+                                                  procrastinationTendency:
+                                                      type: number
+                                                  updatedAt:
+                                                      type: string
+                                                      format: date-time
+
+    # 标签管理接口
+    /tags:
+        get:
+            summary: 获取标签列表
+            description: 获取当前用户的标签列表
+            tags:
+                - 标签
+            security:
+                - BearerAuth: []
+            responses:
+                '200':
+                    description: 成功获取标签列表
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/Tag'
+
+        post:
+            summary: 创建标签
+            description: 创建新的标签
+            tags:
+                - 标签
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateTagRequest'
+            responses:
+                '201':
+                    description: 标签创建成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Tag'
+
+    /tags/{tagId}:
+        put:
+            summary: 更新标签
+            description: 更新指定标签的信息
+            tags:
+                - 标签
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/TagIdParam'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateTagRequest'
+            responses:
+                '200':
+                    description: 标签更新成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Tag'
+
+        delete:
+            summary: 删除标签
+            description: 删除指定的标签
+            tags:
+                - 标签
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/TagIdParam'
+            responses:
+                '200':
+                    description: 标签删除成功
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ApiResponse'
+
+    # 计划管理接口
+    /plans/generate:
+        post:
+            summary: 生成计划
+            description: 根据用户任务和选择的策略生成每日计划
+            tags:
+                - 计划
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PlanGenerationRequest'
+            responses:
+                '201':
+                    description: 计划生成成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Plan'
+                '400':
+                    description: 计划生成失败
+                '500':
+                    description: 算法服务不可用
+
+    /plans/{date}:
+        get:
+            summary: 获取指定日期计划
+            description: 获取指定日期的计划详情
+            tags:
+                - 计划
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/DateParam'
+            responses:
+                '200':
+                    description: 成功获取计划
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Plan'
+                '404':
+                    description: 计划不存在
+
+    /plans:
+        get:
+            summary: 获取计划列表
+            description: 获取用户的计划列表，支持时间范围筛选
+            tags:
+                - 计划
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/PageParam'
+                - $ref: '#/components/parameters/SizeParam'
+                - name: startDate
+                  in: query
+                  schema:
+                      type: string
+                      format: date
+                - name: endDate
+                  in: query
+                  schema:
+                      type: string
+                      format: date
+                - name: strategyType
+                  in: query
+                  schema:
+                      type: string
+                      enum: [EFFICIENCY, HEALTH, FLOW, MOTIVATION]
+            responses:
+                '200':
+                    description: 成功获取计划列表
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              allOf:
+                                                  - $ref: '#/components/schemas/PageResponse'
+                                                  - type: object
+                                                    properties:
+                                                        content:
+                                                            type: array
+                                                            items:
+                                                                $ref: '#/components/schemas/Plan'
+
+    /plans/{planId}:
+        put:
+            summary: 调整计划
+            description: 调整已生成的计划
+            tags:
+                - 计划
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/PlanIdParam'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PlanAdjustmentRequest'
+            responses:
+                '200':
+                    description: 计划调整成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/Plan'
+
+    /plans/{planId}/feedback:
+        post:
+            summary: 提交计划反馈
+            description: 提交计划执行反馈
+            tags:
+                - 计划
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/PlanIdParam'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PlanFeedbackRequest'
+            responses:
+                '200':
+                    description: 反馈提交成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  feedbackId:
+                                                      type: string
+                                                  submittedAt:
+                                                      type: string
+                                                      format: date-time
+
+    # 任务执行接口
+    /executions/{planId}/tasks/{taskId}/start:
+        post:
+            summary: 开始执行任务
+            description: 开始执行计划中的任务
+            tags:
+                - 执行
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/PlanIdParam'
+                - $ref: '#/components/parameters/TaskIdParam'
+            responses:
+                '200':
+                    description: 任务开始执行
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  executionId:
+                                                      type: string
+                                                  taskId:
+                                                      type: string
+                                                  planId:
+                                                      type: string
+                                                  actualStart:
+                                                      type: string
+                                                      format: date-time
+                                                  status:
+                                                      type: string
+
+    /executions/{executionId}/complete:
+        post:
+            summary: 完成任务
+            description: 标记任务执行完成
+            tags:
+                - 执行
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/ExecutionIdParam'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TaskCompletionRequest'
+            responses:
+                '200':
+                    description: 任务完成
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  executionId:
+                                                      type: string
+                                                  completionStatus:
+                                                      type: string
+                                                  completionPercentage:
+                                                      type: integer
+                                                  actualEnd:
+                                                      type: string
+                                                      format: date-time
+                                                  actualDuration:
+                                                      type: integer
+
+    /executions/{executionId}/progress:
+        put:
+            summary: 更新任务进度
+            description: 更新任务执行进度
+            tags:
+                - 执行
+            security:
+                - BearerAuth: []
+            parameters:
+                - $ref: '#/components/parameters/ExecutionIdParam'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProgressUpdateRequest'
+            responses:
+                '200':
+                    description: 进度更新成功
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  executionId:
+                                                      type: string
+                                                  completionPercentage:
+                                                      type: integer
+                                                  updatedAt:
+                                                      type: string
+                                                      format: date-time
+
+    # 数据分析接口
+    /analytics/overview:
+        get:
+            summary: 获取用户统计数据
+            description: 获取用户的整体统计数据和分析
+            tags:
+                - 分析
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: startDate
+                  in: query
+                  schema:
+                      type: string
+                      format: date
+                - name: endDate
+                  in: query
+                  schema:
+                      type: string
+                      format: date
+            responses:
+                '200':
+                    description: 成功获取统计数据
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/AnalyticsOverview'
+
+    /analytics/tasks:
+        get:
+            summary: 获取任务分析
+            description: 获取任务相关的详细分析数据
+            tags:
+                - 分析
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: timeRange
+                  in: query
+                  schema:
+                      type: string
+                      enum: [7d, 30d, 90d]
+            responses:
+                '200':
+                    description: 成功获取任务分析
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  taskTypeDistribution:
+                                                      type: array
+                                                      items:
+                                                          type: object
+                                                  completionRateByType:
+                                                      type: array
+                                                      items:
+                                                          type: object
+                                                  timeSpentAnalysis:
+                                                      type: object
+
+    /analytics/algorithm-performance:
+        get:
+            summary: 获取算法效果评估
+            description: 获取算法性能和使用效果评估数据
+            tags:
+                - 分析
+            security:
+                - BearerAuth: []
+            responses:
+                '200':
+                    description: 成功获取算法效果评估
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  strategyPerformance:
+                                                      type: array
+                                                      items:
+                                                          type: object
+                                                  accuracyMetrics:
+                                                      type: object
+
+    # 系统管理接口
+    /health:
+        get:
+            summary: 健康检查
+            description: 检查系统各组件健康状态
+            tags:
+                - 系统
+            responses:
+                '200':
+                    description: 系统健康状态
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/HealthCheckResponse'
+
+    /system/info:
+        get:
+            summary: 获取系统信息
+            description: 获取系统版本和环境信息
+            tags:
+                - 系统
+            responses:
+                '200':
+                    description: 成功获取系统信息
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/ApiResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/SystemInfo'
+
+# 全局安全配置
+security:
+    - BearerAuth: []
