@@ -22,11 +22,14 @@
         "@element-plus/icons-vue": "^2.3.2",
         "axios": "^1.13.2",
         "element-plus": "^2.11.9",
+        "i18n-t": "^1.0.1",
         "pinia": "^3.0.4",
         "vue": "^3.5.25",
+        "vue-i18n": "^11.2.2",
         "vue-router": "^4.6.3"
     },
     "devDependencies": {
+        "@intlify/unplugin-vue-i18n": "^11.0.1",
         "@prettier/plugin-oxc": "^0.0.5",
         "@tsconfig/node24": "^24.0.3",
         "@types/jsdom": "^27.0.0",

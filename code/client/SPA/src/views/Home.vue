@@ -1,19 +1,33 @@
-<!-- Copyright (c) 2024-2025. All rights reserved. -->
+<!-- Copyright (c) 2025. All rights reserved. -->
 <!-- This source code is licensed under the CC BY-NC-SA -->
 <!-- (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao. -->
 <!-- This software is protected by copyright law. Reproduction, distribution, or use for commercial -->
 <!-- purposes is prohibited without the author's permission. If you have any questions or require -->
 <!-- permission, please contact the author: 2207150234@st.sziit.edu.cn -->
-<!doctype html>
-<html lang="zh-Hans">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" href="/task_list.png" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>SPA</title>
-    </head>
-    <body>
-        <div id="app"></div>
-        <script type="module" src="./src/main.ts"></script>
-    </body>
-</html>
+
+<script lang='ts'>
+/**
+ * @file Home.vue
+ * @author edocsitahw
+ * @version 1.1
+ * @date 2025/12/09 22:20
+ * @desc
+ * @copyright CC BY-NC-SA
+ * */
+import { defineComponent } from "vue";
+
+
+export default defineComponent({
+    data() {
+        return {};
+    }
+});
+</script>
+
+<template>
+
+</template>
+
+<style lang='sass'>
+
+</style>

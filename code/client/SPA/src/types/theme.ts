@@ -5,22 +5,24 @@
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
-import { createApp } from "vue";
-import { createPinia } from "pinia";
+/**
+ * @file theme.ts
+ * @author edocsitahw
+ * @version 1.1
+ * @date 2025/12/09 12:39
+ * @desc
+ * @copyrigh-t CC BY-NC-SA 2025. All rights reserved.
+ * */
 
-import App from "./App.vue";
-import router from "./router/router";
-import { i18n } from "@/locales";
-
-import "element-plus/dist/index.css";
-import ElementPlus from "element-plus";
+export type ThemeType = 'light' | 'dark';
 
 
-const app = createApp(App)
-    .use(createPinia())
-    .use(router)
-    .use(i18n)
-    .use(ElementPlus, {
-        i18n: i18n.global.t
-    })
-    .mount("#app");
+export interface ThemeConfig {
+    name: ThemeType;
+    label: string;
+    colors: {
+        primary: string;
+        background: string;
+        text: string;
+    }
+}
