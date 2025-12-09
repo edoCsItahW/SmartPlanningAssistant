@@ -1,0 +1,34 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        },
+        {
+            "path": "./tsconfig.app.json"
+        },
+        {
+            "path": "./tsconfig.vitest.json"
+        }
+    ],
+    "include": ["./src/components/*.vue", "./src/components/**/*.vue", "./src/*.d.ts", "./src/**/*.ts"],
+    "exclude": ["node_modules", "dist"],
+    "compilerOptions": {
+        "module": "ESNext",
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "vueCompilerOptions": {
+            "target": "3"
+        },
+        "useDefineForClassFields": true,
+        "outDir": "./dist",
+        "target": "esnext",
+        "moduleResolution": "node",
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    }
+}

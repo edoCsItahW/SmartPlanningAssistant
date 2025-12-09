@@ -1,0 +1,62 @@
+/*! Copyright (c) 2025. All rights reserved.
+// This source code is licensed under the CC BY-NC-SA
+// (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
+// This software is protected by copyright law. Reproduction, distribution, or use for commercial
+// purposes is prohibited without the author's permission. If you have any questions or require
+// permission, please contact the author: 2207150234@st.sziit.edu.cn
+@use 'sass:map'
+@use 'sass:meta'
+
+/* variables */
+/// 媒体查询断点
+$breakpoints: ('phone': 320px, 'tablet': 768px, 'desktop': 1024px, 'wide': 1280px) !default
+
+/* mixin */
+
+/// 媒体查询 mixin
+///
+/// @param {string} $from - 起始断点
+/// @param {string} $until - 终止断点
+/// @param {string} $and - 同时满足多个断点
+/// @example
+///.element {
+///   @include media-query(phone, desktop) {
+///     // 样式
+///   }
+/// }
+@mixin media-query($from: false, $until: false, $and: false)
+    $min-width: 0
+    $max-width: 0
+    $query: ''
+
+    @if $from
+        @if meta.type-of($from) == 'string'
+            $min-width: map.get($breakpoints, $from)
+
+        @else
+            $min-width: $from
+
+    @if $until
+        @if meta.type-of($until) == 'string'
+            $max-width: map.get($breakpoints, $until) - 1px
+        @else
+            $max-width: $until - 1px
+
+    @if $min-width != 0
+        $query: "#{$query} (min-width: #{$min-width})"
+
+    @if $max-width != 0
+        @if $query != ''
+            $query: "#{$query} and (max-width: #{$max-width})"
+        @else
+            $query: "#{$query} (max-width: #{$max-width})"
+
+    @if $and
+        @if $query != ''
+            $query: "#{$query} and #{$and}"
+        @else
+            $query: "#{$query} #{$and}"
+
+    @if $query != ''
+        @media #{$query}
+            @content
