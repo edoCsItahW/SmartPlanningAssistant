@@ -15,52 +15,99 @@
  * @copyright CC BY-NC-SA
  * */
 import { defineComponent } from "vue";
-import zhCn from "element-plus/es/locale/lang/zh-cn";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import LangSwitcher from "@/components/LangSwitcher.vue";
+import StdHeader from "@/views/header/StdHeader.vue";
 
 
 export default defineComponent({
     data() {
-        return {};
+        return {
+            activeIdx: 0
+        };
     },
-    setup() {
-        return { zhCn };
+    props: {
+        leftFlag: {
+            type: Boolean,
+            default: true
+        },
+        centerFlag: {
+            type: Boolean,
+            default: true
+        },
+        rightFlag: {
+            type: Boolean,
+            default: true
+        }
+    },
+    computed: {
+        links() {
+            return [
+                [this.$t("home.script.links.home"), "/"],
+                [this.$t("home.script.links.taskList"), "/taskList"],
+                [this.$t("home.script.links.planView"), "/planView"],
+                [this.$t("home.script.links.statistics"), "/statistics"],
+                [this.$t("home.script.links.settings"), "/settings"]
+            ];
+        }
     },
     components: {
         ThemeSwitcher,
-        LangSwitcher
+        LangSwitcher,
+        StdHeader
     }
 });
 </script>
 
 <template>
 
-    <el-config-provider :locale="zhCn">
+    <std-header :left-flag="leftFlag" :center-flag="centerFlag" :right-flag="rightFlag"
+                :left-flex="3" :center-flex="5" :right-flex="2">
 
-        <el-container class="full genheader">
+        <template #left>
 
-            <el-header class="genheader-header">
+            <el-image class="header-left-logo" src="/src/assets/imgs/SPA_Brains.png" />
 
-                <theme-switcher/>
+        </template>
 
-                <lang-switcher/>
+        <template #center>
 
-            </el-header>
+<!--            <el-tabs default-value="/" :model-value="activeUrl">-->
 
-            <slot></slot>
+<!--                <el-tab-pane v-for="([label, link], index) in links" :key="index" :label="label" :name="link">-->
 
-        </el-container>
+<!--                    <router-view :ref="link" />-->
 
-    </el-config-provider>
+<!--                </el-tab-pane>-->
+
+<!--            </el-tabs>-->
+
+            <el-segmented v-model="activeIdx" :options="links.map(t => t[0])" />
+
+        </template>
+
+        <template #right>
+
+            <theme-switcher />
+
+            <lang-switcher />
+
+        </template>
+
+    </std-header>
 
 </template>
 
 <style lang='sass'>
-.genheader
-    &-header
+.header
+    &-left
+        &-logo
+            max-width: 50px
+            max-height: 50px
+
+    &-right
         display: flex
-        justify-content: center
         align-items: center
-        flex-direction: row
+        justify-content: flex-end
+
 </style>

@@ -17,9 +17,8 @@
 import { defineComponent, ref } from "vue";
 import { User, Lock } from "@element-plus/icons-vue";
 import type { FormInstance } from "element-plus";
-import { userApi } from "@/api/user.ts";
+import { userApi } from "@/api/user";
 import GenHeader from "@/views/GenHeader.vue";
-import { useI18n } from "vue-i18n";
 
 
 enum OperationType {
@@ -131,7 +130,7 @@ export default defineComponent({
                     userApi.login(this.form).then(
                         response => {
                             if (response.token)
-                                console.log(response.token);
+                                this.$router.push("/");
                         }
                     ).catch(error => console.error(error));
                     break;
@@ -162,68 +161,86 @@ export default defineComponent({
 
 <template>
 
-    <gen-header>
+    <gen-header :left-flag="false" :center-flag="false" />
 
-        <div class="login">
+    <div class="login">
 
-            <div class="login-wrapper">
+        <div class="login-wrapper">
 
-                <div class="login-left">
+            <div class="login-left">
 
-                    <el-carousel class="login-left-carousel" direction="vertical" type="card"
-                                 motion-blur>
+                <el-carousel class="login-left-carousel" direction="vertical" type="card"
+                             motion-blur>
 
-                        <el-carousel-item v-for="desc in transCarousels" :key="desc">
+                    <el-carousel-item v-for="desc in transCarousels" :key="desc">
 
-                            <div class="login-left-carousel-item">
+                        <div class="login-left-carousel-item">
 
-                                <h3>{{ desc }}</h3>
+                            <h3>{{ desc }}</h3>
 
-                            </div>
+                        </div>
 
-                        </el-carousel-item>
+                    </el-carousel-item>
 
-                    </el-carousel>
+                </el-carousel>
 
-                </div>
+            </div>
 
-                <div class="login-right">
+            <div class="login-right">
 
-                    <div class="login-right-wrapper">
+                <div class="login-right-wrapper">
 
-                        <el-space class="login-right-title" :size="20">
+                    <el-space class="login-right-title" :size="20">
 
-                            <el-image class="login-right-logo"
-                                      src="/src/assets/imgs/SPA_Brains.png" />
+                        <el-image class="login-right-logo"
+                                  src="/src/assets/imgs/SPA_Brains.png" />
 
-                            <h2 style="margin-right: 150px;">{{
-                                    form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register")
-                                }}</h2>
+                        <h2 style="margin-right: 150px;">{{
+                                form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register")
+                            }}</h2>
 
-                        </el-space>
+                    </el-space>
 
-                        <el-form class="login-form" :model="form" :rules="rules" ref="formRef"
-                                 @submit.prevent="handleSubmit">
+                    <el-form class="login-form" :model="form" :rules="rules" ref="formRef"
+                             @submit.prevent="handleSubmit">
 
-                            <el-form-item prop="username">
+                        <el-form-item prop="username">
 
-                                <el-input v-model="form.username" :placeholder="$t('auth.script.rules.username.message')" maxlength="20" show-word-limit clearable>
+                            <el-input v-model="form.username" :placeholder="$t('auth.script.rules.username.message')" maxlength="20" show-word-limit clearable>
 
-                                    <template #prefix>
+                                <template #prefix>
 
-                                        <el-icon>
-                                            <User />
-                                        </el-icon>
+                                    <el-icon>
+                                        <User />
+                                    </el-icon>
 
-                                    </template>
+                                </template>
 
-                                </el-input>
+                            </el-input>
 
-                            </el-form-item>
+                        </el-form-item>
 
-                            <el-form-item prop="password">
+                        <el-form-item prop="password">
 
-                                <el-input type="password" v-model="form.password" :placeholder="$t('auth.script.rules.password.message')" show-password clearable>
+                            <el-input type="password" v-model="form.password" :placeholder="$t('auth.script.rules.password.message')" show-password clearable>
+
+                                <template #prefix>
+
+                                    <el-icon>
+                                        <Lock />
+                                    </el-icon>
+
+                                </template>
+
+                            </el-input>
+
+                        </el-form-item>
+
+                        <Transition>
+
+                            <el-form-item v-if="form.operationType === OperationType.REGISTER" prop="confirmPassword">
+
+                                <el-input type="password" v-model="form.confirmPassword" :placeholder="$t('auth.script.rules.confirmPassword.message')" show-password clearable>
 
                                     <template #prefix>
 
@@ -237,79 +254,57 @@ export default defineComponent({
 
                             </el-form-item>
 
+                        </Transition>
+
+                        <el-form-item>
+
+                            <i18n-t keypath="auth.template.agreementText" tag="span">
+
+                                <template #agreementLink>
+
+                                    <el-link type="primary" underline="never">{{ $t("auth.template.userAgreement") }}</el-link>
+
+                                </template>
+
+                                <template #privacyLink>
+
+                                    <el-link type="primary" underline="never">{{ $t("auth.template.privacyPolicy") }}</el-link>
+
+                                </template>
+
+                            </i18n-t>
+
+                        </el-form-item>
+
+                        <el-form-item>
+
+                            <el-button-group class="login-control" direction="horizontal">
+
+                                <el-button class="login-control-login" type="primary" :loading="false" @click="handleSubmit">{{ form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register") }}</el-button>
+
+                                <el-button class="login-control-reset" type="info" plain @click="handleReset">{{ $t("auth.template.reset") }}</el-button>
+
+                            </el-button-group>
+
+                        </el-form-item>
+
+                        <div class="login-links">
+
                             <Transition>
 
-                                <el-form-item v-if="form.operationType === OperationType.REGISTER" prop="confirmPassword">
-
-                                    <el-input type="password" v-model="form.confirmPassword" :placeholder="$t('auth.script.rules.confirmPassword.message')" show-password clearable>
-
-                                        <template #prefix>
-
-                                            <el-icon>
-                                                <Lock />
-                                            </el-icon>
-
-                                        </template>
-
-                                    </el-input>
-
-                                </el-form-item>
+                                <el-link v-if="form.operationType === OperationType.LOGIN" type="primary">{{ $t("auth.template.forgotPassword") }}</el-link>
 
                             </Transition>
 
-                            <el-form-item>
+                            <el-link type="primary" @click="form.operationType = form.operationType === OperationType.LOGIN ? OperationType.REGISTER : OperationType.LOGIN">
+                                {{
+                                    form.operationType === OperationType.LOGIN ? $t("auth.template.createAccount") : $t("auth.template.alreadyHaveAccount")
+                                }}
+                            </el-link>
 
-<!--                                <el-text class="description">By registering and logging in, you acknowledge that you have read and agree to our <el-link type="primary" underline="never">User Agreement </el-link> and <el-link type="primary" underline="never"> Privacy Policy </el-link>.</el-text>-->
+                        </div>
 
-                                <i18n-t keypath="auth.template.agreementText" tag="span">
-
-                                    <template #agreementLink>
-
-                                        <el-link type="primary" underline="never">{{ $t("auth.template.userAgreement") }}</el-link>
-
-                                    </template>
-
-                                    <template #privacyLink>
-
-                                        <el-link type="primary" underline="never">{{ $t("auth.template.privacyPolicy") }}</el-link>
-
-                                    </template>
-
-                                </i18n-t>
-
-                            </el-form-item>
-
-                            <el-form-item>
-
-                                <el-button-group class="login-control" direction="horizontal">
-
-                                    <el-button class="login-control-login" type="primary" :loading="false" @click="handleSubmit">{{ form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register") }}</el-button>
-
-                                    <el-button class="login-control-reset" type="info" plain @click="handleReset">{{ $t("auth.template.reset") }}</el-button>
-
-                                </el-button-group>
-
-                            </el-form-item>
-
-                            <div class="login-links">
-
-                                <Transition>
-
-                                    <el-link v-if="form.operationType === OperationType.LOGIN" type="primary">{{ $t("auth.template.forgotPassword") }}</el-link>
-
-                                </Transition>
-
-                                <el-link type="primary" @click="form.operationType = form.operationType === OperationType.LOGIN ? OperationType.REGISTER : OperationType.LOGIN">
-                                    {{
-                                        form.operationType === OperationType.LOGIN ? $t("auth.template.createAccount") : $t("auth.template.alreadyHaveAccount")
-                                    }}
-                                </el-link>
-
-                            </div>
-
-                        </el-form>
-
-                    </div>
+                    </el-form>
 
                 </div>
 
@@ -317,7 +312,7 @@ export default defineComponent({
 
         </div>
 
-    </gen-header>
+    </div>
 
 </template>
 

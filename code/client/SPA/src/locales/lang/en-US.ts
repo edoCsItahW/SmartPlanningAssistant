@@ -73,6 +73,19 @@ export default {
             switch: "Switch Language"
         }
     },
+
+    // src/views/home/Home.vue
+    home: {
+        script: {
+            links: {
+                home: "Home",
+                taskList: "Task List",
+                planView: "Plan View",
+                statistics: "Statistics",
+                settings: "Settings"
+            }
+        }
+    }
 };
 
 export const enUSOption: LanguageOption = {

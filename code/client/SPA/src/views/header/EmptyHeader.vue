@@ -7,54 +7,33 @@
 
 <script lang='ts'>
 /**
- * @file Home.vue
+ * @file EmptyHeader.vue
  * @author edocsitahw
  * @version 1.1
- * @date 2025/12/09 22:20
+ * @date 2025/12/10 16:13
  * @desc
  * @copyright CC BY-NC-SA
  * */
 import { defineComponent } from "vue";
-import GenHeader from "@/views/GenHeader.vue";
 
 
 export default defineComponent({
     data() {
         return {};
-    },
-    components: {
-        GenHeader
     }
 });
 </script>
 
 <template>
 
-    <div class="home full">
+    <el-header class="header">
 
-        <gen-header :left-flex="3" :center-flex="5" :right-flex="2"  />
+        <slot></slot>
 
-        <el-container class="home-content">
-
-            <el-main>
-
-
-
-            </el-main>
-
-        </el-container>
-
-    </div>
+    </el-header>
 
 </template>
 
 <style lang='sass'>
-.home
-    display: flex
-    flex-direction: column
-
-    &-content
-        display: flex
-        flex-direction: row
 
 </style>

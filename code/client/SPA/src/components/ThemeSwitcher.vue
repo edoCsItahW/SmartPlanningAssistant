@@ -52,7 +52,7 @@ export default defineComponent({
 
 <template>
 
-    <div class="theme-switcher">
+    <div :class="{ 'theme-switcher': true, [`theme-${theme}`]: true }">
 
         <el-tooltip :content="themeStore.theme === 'light' ? $t('themeSwitcher.template.dark') : $t('themeSwitcher.template.light')">
 
@@ -115,16 +115,20 @@ export default defineComponent({
 </template>
 
 <style lang='sass'>
-.theme-switcher
-    display: flex
-    align-items: center
-    gap: 10px
+.theme
 
-    .quick-toggle-btn
+    &-switcher
+        display: flex
+        align-items: center
+        gap: 10px
+
+    &-toggle-btn
         font-size: 18px
+        /* TODO: 取反色 */
+        // background-color: var(--background-color)
 
 
-    .theme-option
+    &-option
         display: flex
         align-items: center
         gap: 8px
@@ -142,8 +146,7 @@ export default defineComponent({
             color: var(--el-color-primary)
 
 
-
-    .theme-preview
+    &-preview
         display: flex
         gap: 8px
         margin-left: 10px

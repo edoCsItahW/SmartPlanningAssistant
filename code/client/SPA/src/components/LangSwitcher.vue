@@ -88,18 +88,12 @@ export default defineComponent({
         gap: 8px
         padding: 0 10px
 
-
     &-switch-btn
-        width: 36px
-        height: 36px
-        background-color: #409eff
-        color: white
         transition: all 0.3s ease
-
 
     &-switch-btn:hover
         background-color: #66b1ff
-
+        color: #fff
 
     &-select
         width: 180px

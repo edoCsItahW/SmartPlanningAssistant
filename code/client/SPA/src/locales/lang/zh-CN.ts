@@ -74,6 +74,19 @@ export default {
             switch: "切换语言"
         }
     },
+
+    // src/views/home/Home.vue
+    home: {
+        script: {
+            links: {
+                home: "首页",
+                taskList: "任务列表",
+                planView: "计划视图",
+                statistics: "统计",
+                settings: "设置"
+            }
+        }
+    }
 };
 
 

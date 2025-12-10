@@ -4,18 +4,22 @@
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
-
 import { createRouter, createWebHistory } from "vue-router";
-import Auth from "@/views/Auth.vue";
+import Home from "@/views/Home.vue";
 
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
+            path: "/",
+            name: "home",
+            component: Home
+        },
+        {
             path: "/auth",
             name: "auth",
-            component: Auth
+            component: () => import("@/views/Auth.vue")
         }
     ]
 });
