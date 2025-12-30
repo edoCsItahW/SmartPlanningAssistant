@@ -14,7 +14,7 @@
  * @desc
  * @copyright CC BY-NC-SA
  * */
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 import { LangStore } from "@/stores/langStore";
 import Language from "@/components/svg/Language.vue";
 import { LangOptions } from "@/locales/lang";
@@ -23,14 +23,31 @@ import { LangOptions } from "@/locales/lang";
 export default defineComponent({
     data() {
         return {
-            language: ''
+            language: '',
+            realType: this.type as 'toggle' |'select'
         };
     },
+
+    props: {
+        type: {
+            type: String as PropType<"select" | "toggle">,
+            default: 'toggle',
+            validator: (value: string) => ['select', 'toggle'].includes(value)
+        }
+    },
+
     setup() {
         const langStore = LangStore();
 
         return { langStore, LangOptions };
     },
+
+    computed: {
+        langOpts() {
+            return LangOptions.filter(o => o.value !== this.langStore.language);
+        }
+    },
+
     methods: {
         toggleLanguage() {
             this.langStore.toggleLanguage();
@@ -38,14 +55,16 @@ export default defineComponent({
 
         handleLanguageChange(lang: string) {
             this.langStore.setLanguage(lang);
-        }
-    },
-    watch: {
-        language(lang: string) {
-            this.langStore.setLanguage(lang);
 
+            this.realType = this.type;
         }
     },
+
+    beforeMount() {
+        if (!this.langStore.recentLanguage)
+            this.realType = 'select';
+    },
+
     components: {
         Language
     }
@@ -56,7 +75,7 @@ export default defineComponent({
 
     <div class="lang-switcher">
 
-        <el-tooltip :content="$t('langSwitcher.template.switch')">
+        <el-tooltip v-if="realType === 'toggle'" :content="$t('langSwitcher.template.switch')">
 
             <el-button class="lang-switch-btn" circle @click="toggleLanguage" :title="$t('lang.quickSwitch')">
 
@@ -70,11 +89,11 @@ export default defineComponent({
 
         </el-tooltip>
 
-<!--        <el-select v-model="language" class="lang-select" size="small" @change="handleLanguageChange" :placeholder="$t('lang.switch')">-->
+        <el-select v-else v-model="language" class="lang-select" size="small" @change="handleLanguageChange" :placeholder="$t('lang.switch')">
 
-<!--            <el-option v-for="option in LangOptions" :key="option.value" :label="$t(`lang.${option.value.replace('-', '')}`)" :value="option.value" />-->
+            <el-option v-for="option in langOpts" :key="option.value" :label="$t(`lang.${option.value.replace('-', '')}`)" :value="option.value" />
 
-<!--        </el-select>-->
+        </el-select>
 
     </div>
 
@@ -82,6 +101,7 @@ export default defineComponent({
 
 <style lang='sass'>
 .lang
+
     &-switcher
         display: flex
         align-items: center
@@ -96,6 +116,6 @@ export default defineComponent({
         color: #fff
 
     &-select
-        width: 180px
+        min-width: 180px
 
 </style>

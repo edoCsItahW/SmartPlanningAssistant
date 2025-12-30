@@ -15,7 +15,6 @@ import { i18n } from "@/locales";
 import "element-plus/dist/index.css";
 import ElementPlus from "element-plus";
 
-
 const app = createApp(App)
     .use(createPinia())
     .use(router)

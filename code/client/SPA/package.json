@@ -19,6 +19,8 @@
         "format": "prettier --write --experimental-cli src/"
     },
     "dependencies": {
+        "@antv/g2": "^5.4.7",
+        "@antv/g2plot": "^2.4.35",
         "@element-plus/icons-vue": "^2.3.2",
         "axios": "^1.13.2",
         "element-plus": "^2.11.9",

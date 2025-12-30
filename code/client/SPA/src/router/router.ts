@@ -4,22 +4,46 @@
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/views/Home.vue";
-
+import Auth from "@/views/Auth.vue";
+import TaskList from "@/views/TaskList.vue";
+import PlanView from "@/views/planView/PlanView.vue";
+import Statistics from "@/views/Statistics.vue";
+import Settings from "@/views/settings/Settings.vue";
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHashHistory(),
     routes: [
         {
-            path: "/",
+            path: "/home",
             name: "home",
             component: Home
         },
         {
             path: "/auth",
             name: "auth",
-            component: () => import("@/views/Auth.vue")
+            component: Auth
+        },
+        {
+            path: "/taskList",
+            name: "taskList",
+            component: TaskList
+        },
+        {
+            path: "/planView",
+            name: "planView",
+            component: PlanView
+        },
+        {
+            path: "/statistics",
+            name: "statistics",
+            component: Statistics
+        },
+        {
+            path: "/settings",
+            name: "settings",
+            component: Settings
         }
     ]
 });

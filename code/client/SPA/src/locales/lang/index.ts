@@ -19,15 +19,10 @@ import { zhCNOption } from "@/locales/lang/zh-CN";
 import { enUSOption } from "@/locales/lang/en-US";
 import type { LanguageOption, LanguageType } from "@/locales/types";
 
-
 export const messages: Record<LanguageType, unknown> = {
     "zh-CN": zhCN,
     "en-US": enUS,
     "ja-JP": {}
 };
 
-
-export const LangOptions: LanguageOption[] = [
-    zhCNOption,
-    enUSOption
-];
+export const LangOptions: LanguageOption[] = [zhCNOption, enUSOption];

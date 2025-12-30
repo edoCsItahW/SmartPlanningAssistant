@@ -61,3 +61,50 @@ $breakpoints: ('phone': 320px, 'tablet': 768px, 'desktop': 1024px, 'wide': 1280p
     @if $query != ''
         @media #{$query}
             @content
+
+
+@function random-num($min, $max)
+    @return $min + random($max - $min)
+
+
+@function random-percent()
+    @return random(100) * 1%
+
+
+@function random-color()
+    @return hsl(random(360), random(70) + 30%, random(70) + 58%)
+
+
+@keyframes float
+    0%, 100%
+        transform: translate(0, 0) rotate(0)
+
+    25%
+        transform: translate(random-num(10, 30) + px, random-num(10, 30) + px) rotate(5deg)
+
+    50%
+        transform: translate(random-num(-30, -10) + px, random-num(10, 30) + px) rotate(-5deg)
+
+    75%
+        transform: translate(random-num(-30, -10) + px, random-num(-30, -10) + px) rotate(5deg)
+
+
+@mixin perset-circle($center-color, $border-color)
+    $size: random-num(100, 400) + px
+
+    position: fixed
+
+    width: $size
+    height: $size
+
+    background: radial-gradient(circle at center, $center-color 0%, $border-color 50%, transparent 70%)
+
+    top: random-percent()
+    left: random-percent()
+
+    animation: float random-num(20, 40) + s ease-in-out infinite
+    animation-delay: random-num(0, 20) + s
+
+    opacity: 1
+    z-index: -1
+    pointer-events: none

@@ -17,8 +17,7 @@
 /**
  * @desc支持的语言类型
  */
-export type LanguageType = 'zh-CN' | 'en-US' | 'ja-JP';
-
+export type LanguageType = "zh-CN" | "en-US" | "ja-JP";
 
 /** @interface LanguageOption
  * @desc 语言选项配置

@@ -15,7 +15,6 @@
  * */
 import type { LanguageOption } from "@/locales/types";
 
-
 export default {
     lang: {
         switch: "Switch Language",
@@ -29,22 +28,30 @@ export default {
     auth: {
         script: {
             carousels: {
-                "Smart": "Smart",
-                "Fast": "Fast",
-                "Secure": "Secure",
-                "Efficient": "Efficient"
+                Smart: "Smart",
+                Fast: "Fast",
+                Secure: "Secure",
+                Efficient: "Efficient"
             },
             rules: {
                 username: {
-                    message: "Please input your username"
+                    message: "Please input your username",
+                    atLeast: "Username must be at least 3 characters",
+                    atMost: "Username must be at most 20 characters",
+                    contains: "Username must contain only letters, numbers, and underscores"
                 },
                 password: {
-                    message: "Please input your password"
+                    message: "Please input your password",
+                    atLeast: "Password must be at least 6 characters",
+                    contains: "Password must contain at least one uppercase letter, one lowercase letter, and one number"
                 },
                 confirmPassword: {
-                    message: "Please confirm your password"
+                    message: "Please confirm your password",
+                    notMatch: "Passwords do not match"
                 }
-            }
+            },
+            loginFailed: "Username or password is incorrect, please check and try again!",
+            registerFailed: "Failed to register, please check and try again!"
         },
         template: {
             login: "Login",
@@ -56,6 +63,14 @@ export default {
             agreementText: "By registering and logging in, you acknowledge that you have read and agree to our {agreementLink} and {privacyLink}.",
             userAgreement: "User Agreement",
             privacyPolicy: "Privacy Policy"
+        }
+    },
+
+    // src/stores/themeStore.ts
+    themeStore: {
+        script: {
+            light: "Light Mode",
+            dark: "Dark Mode"
         }
     },
 
@@ -76,6 +91,14 @@ export default {
 
     // src/views/home/Home.vue
     home: {
+        template: {
+            title: "Smart Planning Assistant",
+            welcome: "Welcome to Smart Planning Assistant, {username}!"
+        }
+    },
+
+    // src/views/GenHeader.vue
+    genHeader: {
         script: {
             links: {
                 home: "Home",
@@ -83,6 +106,93 @@ export default {
                 planView: "Plan View",
                 statistics: "Statistics",
                 settings: "Settings"
+            }
+        }
+    },
+
+    // src/views/taskList/TaskList.vue
+    taskList: {
+        template: {
+            empty: "No task found."
+        }
+    },
+
+    // src/views/planView/PlanView.vue
+    planView: {
+        script: {
+            options: {
+                monthly: "Monthly View",
+                weekly: "Weekly View",
+                daily: "Daily View"
+            },
+            actions: {
+                add: "Add Task",
+                refresh: "Refresh",
+                export: "Export"
+            }
+        },
+        template: {
+            drawer: {
+                title: "Plan Details"
+            }
+        }
+    },
+
+    // src/views/planView/MonthView.vue
+    monthView: {
+        template: {
+            today: "Today",
+        }
+    },
+
+    // src/views/planView/WeekView.vue
+    weekView: {
+        script: {
+            weekdays: {
+                mon: "Monday",
+                tue: "Tuesday",
+                wed: "Wednesday",
+                thu: "Thursday",
+                fri: "Friday",
+                sat: "Saturday",
+                sun: "Sunday"
+            }
+        },
+        template: {}
+    },
+
+    // src/views/Statistics.vue
+    statistics: {
+        template: {
+            bottom: {
+                daily: "Daily Statistics",
+                time: "Time Statistics",
+                total: "Total Statistics"
+            }
+        }
+    },
+
+    // src/views/Settings.vue
+    settings: {
+        template: {
+            general: {
+                theme: "Theme",
+                language: "Language",
+            }
+        },
+        script: {
+            menu: {
+                general: "General",
+                account: "Account",
+                accounts: {
+                    profile: "Profile",
+                    logout: "Logout",
+                    changePassword: "Change Password",
+                    deleteAccount: "Delete Account"
+                },
+                language: "Language",
+                theme: "Theme",
+                about: "About",
             }
         }
     }

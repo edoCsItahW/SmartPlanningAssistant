@@ -16,9 +16,10 @@
  * */
 import { defineComponent, ref } from "vue";
 import { User, Lock } from "@element-plus/icons-vue";
-import type { FormInstance } from "element-plus";
+import { ElMessage, FormInstance } from "element-plus";
 import { userApi } from "@/api/user";
 import GenHeader from "@/views/GenHeader.vue";
+import { Optional } from "@/types";
 
 
 enum OperationType {
@@ -84,16 +85,16 @@ export default defineComponent({
     methods: {
         validateUsername(rule: never, value: string, callback: (error?: Error) => void) {
             if (!value)
-                callback(new Error("Please input your username"));
+                callback(new Error(this.$t("auth.script.rules.username.message")));
 
             else if (value.length < 3)
-                callback(new Error("Username must be at least 3 characters"));
+                callback(new Error(this.$t("auth.script.rules.username.atLeast")));
 
             else if (value.length > 20)
-                callback(new Error("Username must be at most 20 characters"));
+                callback(new Error(this.$t("auth.script.rules.username.atMost")));
 
             else if (!/^[a-zA-Z0-9_]+$/.test(value))
-                callback(new Error("Username must contain only letters, numbers, and underscores"));
+                callback(new Error(this.$t("auth.script.rules.username.contains")));
 
             else
                 callback();
@@ -101,13 +102,13 @@ export default defineComponent({
 
         validatePassword(rule: never, value: string, callback: (error?: Error) => void) {
             if (!value)
-                callback(new Error("Please input your password"));
+                callback(new Error(this.$t("auth.script.rules.password.message")));
 
             else if (value.length < 6)
-                callback(new Error("Password must be at least 6 characters"));
+                callback(new Error(this.$t("auth.script.rules.password.atLeast")));
 
             else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value))
-                callback(new Error("Password must contain at least one uppercase letter, one lowercase letter, and one number"));
+                callback(new Error(this.$t("auth.script.rules.password.contains")));
 
             else
                 callback();
@@ -115,31 +116,46 @@ export default defineComponent({
 
         validateConfirmPassword(rule: never, value: string, callback: (error?: Error) => void) {
             if (!value)
-                callback(new Error("Please confirm your password"));
+                callback(new Error(this.$t("auth.script.rules.confirmPassword.message")));
 
             else if (value !== this.form.password)
-                callback(new Error("Passwords do not match"));
+                callback(new Error(this.$t("auth.script.rules.confirmPassword.notMatch")));
 
             else
                 callback();
         },
 
-        async handleSubmit() {
-            switch (this.form.operationType) {
-                case OperationType.LOGIN:
-                    userApi.login(this.form).then(
-                        response => {
-                            if (response.token)
-                                this.$router.push("/");
-                        }
-                    ).catch(error => console.error(error));
-                    break;
+        authFailed(message: string) {
+            ElMessage({
+                message: message,
+                type: "error"
+            })
+        },
 
-                case OperationType.REGISTER:
-                    userApi.register(this.form).then(() => this.form.operationType = OperationType.LOGIN).catch(error => console.error(error));
-                    break;
+        async handleSubmit(formElem: Optional<FormInstance>) {
+            if (!formElem)
+                return;
 
-            }
+            formElem.validate(async (valid: boolean) => {
+                if (valid)
+                    switch (this.form.operationType) {
+                        case OperationType.LOGIN:
+                            userApi.login(this.form).then(
+                                response => {
+                                    if (response.token)
+                                        this.$router.push("/home");
+                                }
+                            ).catch(() => this.authFailed(this.$t("auth.script.loginFailed")));
+                            break;
+
+                        case OperationType.REGISTER:
+                            userApi.register(this.form).then(() => this.form.operationType = OperationType.LOGIN).catch(() => this.authFailed(this.$t("auth.script.registerFailed")));
+                            break;
+
+                    }
+
+            });
+
         },
 
         handleReset() {
@@ -161,86 +177,74 @@ export default defineComponent({
 
 <template>
 
-    <gen-header :left-flag="false" :center-flag="false" />
+    <el-container class="login full" direction="vertical">
 
-    <div class="login">
+        <gen-header :left-flag="false" :center-flag="false" />
 
-        <div class="login-wrapper">
+        <el-main class="login-main">
 
-            <div class="login-left">
+            <div class="login-wrapper">
 
-                <el-carousel class="login-left-carousel" direction="vertical" type="card"
-                             motion-blur>
+                <div class="login-left">
 
-                    <el-carousel-item v-for="desc in transCarousels" :key="desc">
+                    <el-carousel class="login-left-carousel" direction="vertical" type="card"
+                                 motion-blur>
 
-                        <div class="login-left-carousel-item">
+                        <el-carousel-item v-for="desc in transCarousels" :key="desc">
 
-                            <h3>{{ desc }}</h3>
+                            <div class="login-left-carousel-item">
 
-                        </div>
+                                <h3>{{ desc }}</h3>
 
-                    </el-carousel-item>
+                            </div>
 
-                </el-carousel>
+                        </el-carousel-item>
 
-            </div>
+                    </el-carousel>
 
-            <div class="login-right">
+                </div>
 
-                <div class="login-right-wrapper">
+                <div class="login-right">
 
-                    <el-space class="login-right-title" :size="20">
+                    <div class="login-right-wrapper">
 
-                        <el-image class="login-right-logo"
-                                  src="/src/assets/imgs/SPA_Brains.png" />
+                        <el-space class="login-right-title" :size="20">
 
-                        <h2 style="margin-right: 150px;">{{
-                                form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register")
-                            }}</h2>
+                            <el-image class="login-right-logo"
+                                      src="/src/assets/imgs/SPA_Brains.png" />
 
-                    </el-space>
+                            <h2 style="margin-right: 150px;">{{
+                                    form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register")
+                                }}</h2>
 
-                    <el-form class="login-form" :model="form" :rules="rules" ref="formRef"
-                             @submit.prevent="handleSubmit">
+                        </el-space>
 
-                        <el-form-item prop="username">
+                        <el-form class="login-form" :model="form" :rules="rules" ref="formRef"
+                                 @submit.prevent="handleSubmit(formRef)">
 
-                            <el-input v-model="form.username" :placeholder="$t('auth.script.rules.username.message')" maxlength="20" show-word-limit clearable>
+                            <el-form-item prop="username">
 
-                                <template #prefix>
+                                <el-input v-model="form.username"
+                                          :placeholder="$t('auth.script.rules.username.message')"
+                                          maxlength="20" show-word-limit clearable>
 
-                                    <el-icon>
-                                        <User />
-                                    </el-icon>
+                                    <template #prefix>
 
-                                </template>
+                                        <el-icon>
+                                            <User />
+                                        </el-icon>
 
-                            </el-input>
+                                    </template>
 
-                        </el-form-item>
+                                </el-input>
 
-                        <el-form-item prop="password">
+                            </el-form-item>
 
-                            <el-input type="password" v-model="form.password" :placeholder="$t('auth.script.rules.password.message')" show-password clearable>
+                            <el-form-item prop="password">
 
-                                <template #prefix>
-
-                                    <el-icon>
-                                        <Lock />
-                                    </el-icon>
-
-                                </template>
-
-                            </el-input>
-
-                        </el-form-item>
-
-                        <Transition>
-
-                            <el-form-item v-if="form.operationType === OperationType.REGISTER" prop="confirmPassword">
-
-                                <el-input type="password" v-model="form.confirmPassword" :placeholder="$t('auth.script.rules.confirmPassword.message')" show-password clearable>
+                                <el-input type="password" v-model="form.password"
+                                          :placeholder="$t('auth.script.rules.password.message')"
+                                          show-password clearable>
 
                                     <template #prefix>
 
@@ -254,78 +258,115 @@ export default defineComponent({
 
                             </el-form-item>
 
-                        </Transition>
-
-                        <el-form-item>
-
-                            <i18n-t keypath="auth.template.agreementText" tag="span">
-
-                                <template #agreementLink>
-
-                                    <el-link type="primary" underline="never">{{ $t("auth.template.userAgreement") }}</el-link>
-
-                                </template>
-
-                                <template #privacyLink>
-
-                                    <el-link type="primary" underline="never">{{ $t("auth.template.privacyPolicy") }}</el-link>
-
-                                </template>
-
-                            </i18n-t>
-
-                        </el-form-item>
-
-                        <el-form-item>
-
-                            <el-button-group class="login-control" direction="horizontal">
-
-                                <el-button class="login-control-login" type="primary" :loading="false" @click="handleSubmit">{{ form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register") }}</el-button>
-
-                                <el-button class="login-control-reset" type="info" plain @click="handleReset">{{ $t("auth.template.reset") }}</el-button>
-
-                            </el-button-group>
-
-                        </el-form-item>
-
-                        <div class="login-links">
-
                             <Transition>
 
-                                <el-link v-if="form.operationType === OperationType.LOGIN" type="primary">{{ $t("auth.template.forgotPassword") }}</el-link>
+                                <el-form-item v-if="form.operationType === OperationType.REGISTER"
+                                              prop="confirmPassword">
+
+                                    <el-input type="password" v-model="form.confirmPassword"
+                                              :placeholder="$t('auth.script.rules.confirmPassword.message')"
+                                              show-password clearable>
+
+                                        <template #prefix>
+
+                                            <el-icon>
+                                                <Lock />
+                                            </el-icon>
+
+                                        </template>
+
+                                    </el-input>
+
+                                </el-form-item>
 
                             </Transition>
 
-                            <el-link type="primary" @click="form.operationType = form.operationType === OperationType.LOGIN ? OperationType.REGISTER : OperationType.LOGIN">
-                                {{
-                                    form.operationType === OperationType.LOGIN ? $t("auth.template.createAccount") : $t("auth.template.alreadyHaveAccount")
-                                }}
-                            </el-link>
+                            <el-form-item>
 
-                        </div>
+                                <i18n-t keypath="auth.template.agreementText" tag="span">
 
-                    </el-form>
+                                    <template #agreementLink>
+
+                                        <el-link type="primary" underline="never">
+                                            {{ $t("auth.template.userAgreement") }}
+                                        </el-link>
+
+                                    </template>
+
+                                    <template #privacyLink>
+
+                                        <el-link type="primary" underline="never">
+                                            {{ $t("auth.template.privacyPolicy") }}
+                                        </el-link>
+
+                                    </template>
+
+                                </i18n-t>
+
+                            </el-form-item>
+
+                            <el-form-item>
+
+                                <el-button-group class="login-control" direction="horizontal">
+
+                                    <el-button class="login-control-login" type="primary"
+                                               :loading="false" @click="handleSubmit(formRef)">{{
+                                            form.operationType === OperationType.LOGIN ? $t("auth.template.login") : $t("auth.template.register")
+                                        }}
+                                    </el-button>
+
+                                    <el-button class="login-control-reset" type="info" plain
+                                               @click="handleReset">{{ $t("auth.template.reset") }}
+                                    </el-button>
+
+                                </el-button-group>
+
+                            </el-form-item>
+
+                            <div class="login-links">
+
+                                <Transition>
+
+                                    <el-link v-if="form.operationType === OperationType.LOGIN"
+                                             type="primary">{{ $t("auth.template.forgotPassword") }}
+                                    </el-link>
+
+                                </Transition>
+
+                                <el-link type="primary"
+                                         @click="form.operationType = form.operationType === OperationType.LOGIN ? OperationType.REGISTER : OperationType.LOGIN">
+                                    {{
+                                        form.operationType === OperationType.LOGIN ? $t("auth.template.createAccount") : $t("auth.template.alreadyHaveAccount")
+                                    }}
+                                </el-link>
+
+                            </div>
+
+                        </el-form>
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+        </el-main>
 
-    </div>
+    </el-container>
 
 </template>
 
 <style lang='sass'>
-@use "../style/global" as *
+@use "@/style/global" as *
 
 .login
     display: flex
-    height: 100%
-    width: 100%
-    justify-content: center
-    align-items: center
     flex-direction: column
+
+    &-main
+        display: flex !important
+        justify-content: center
+        align-items: center
 
     &-wrapper
         display: flex

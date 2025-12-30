@@ -5,8 +5,7 @@
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
-import { http, type HttpResponse } from "@/utils/request";
-
+import { http } from "@/utils/request";
 
 /** @interface LoginParams
  *
@@ -19,7 +18,6 @@ export interface LoginParams {
     username: string;
     password: string;
 }
-
 
 /** @interface UserInfo
  *
@@ -37,7 +35,6 @@ export interface UserInfo {
     avatar?: string;
 }
 
-
 /** @interface LoginResult
  *
  * @desc 登录结果接口
@@ -49,7 +46,6 @@ export interface LoginResult {
     token: string;
     userInfo: UserInfo;
 }
-
 
 export const userApi = {
     /**

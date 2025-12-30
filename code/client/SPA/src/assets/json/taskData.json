@@ -1,0 +1,53 @@
+[
+    {
+        "id": 1,
+        "title": "任务1",
+        "description": "任务1描述",
+        "taskType": "creative",
+        "urgencyLevel": 7,
+        "importanceLevel": 5,
+        "estimatedDuration": 10,
+        "cognitiveLoadScore": 3,
+        "energyCostScore": 2,
+        "status": "pending",
+        "scheduledStart": "2021-12-01T09:00:00Z",
+        "scheduledEnd": "2021-12-01T10:00:00Z",
+        "dueDate": "2021-12-01T10:00:00Z",
+        "progress": 0,
+        "tags": ["tag1", "tag2"]
+    },
+    {
+        "id": 2,
+        "title": "任务2",
+        "description": "任务2描述",
+        "taskType": "creative",
+        "urgencyLevel": 5,
+        "importanceLevel": 3,
+        "estimatedDuration": 15,
+        "cognitiveLoadScore": 5,
+        "energyCostScore": 4,
+        "status": "completed",
+        "scheduledStart": "2021-12-02T09:00:00Z",
+        "scheduledEnd": "2021-12-02T10:00:00Z",
+        "dueDate": "2021-12-02T10:00:00Z",
+        "progress": 100,
+        "tags": ["tag3", "tag4"]
+    },
+    {
+        "id": 3,
+        "title": "任务3",
+        "description": "任务3描述",
+        "taskType": "creative",
+        "urgencyLevel": 3,
+        "importanceLevel": 7,
+        "estimatedDuration": 20,
+        "cognitiveLoadScore": 7,
+        "energyCostScore": 6,
+        "status": "pending",
+        "scheduledStart": "2021-12-03T09:00:00Z",
+        "scheduledEnd": "2021-12-03T10:00:00Z",
+        "dueDate": "2021-12-03T10:00:00Z",
+        "progress": 0,
+        "tags": ["tag5", "tag6"]
+    }
+]

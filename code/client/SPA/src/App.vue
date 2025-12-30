@@ -17,7 +17,7 @@ import router from "@/router/router";
 import { ThemeStore } from "@/stores/themeStore";
 
 onload = () => {
-    router.push("/auth");
+    router.push(localStorage.getItem("token") ? "/home" : "/auth");
 };
 
 export default defineComponent({
@@ -42,12 +42,13 @@ export default defineComponent({
 </template>
 
 <style lang="sass">
-@use "@/style/variables"
+@use "@/style/variables" as *
 
 html, body, #app, .full
     margin: 0
     padding: 0
     height: 100%
+    width: 100%
 
 // 全局样式使用变量
 body

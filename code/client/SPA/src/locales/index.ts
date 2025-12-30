@@ -20,20 +20,18 @@ import { type LanguageType } from "@/locales/types";
 import zhCN from "@/locales/lang/zh-CN";
 import enUS from "@/locales/lang/en-US";
 
-
 export const elLangMap: Record<LanguageType, unknown> = {
     "zh-CN": zhCN,
     "en-US": enUS,
     "ja-JP": {}
 };
 
-
 export const i18n = createI18n({
     legacy: false,
     locale: "en-US",
     fallbackLocale: "en-US",
     messages,
-    globalInjection: true,
+    globalInjection: true
     // missingWarn: true,
     // fallbackWarn: true
 });

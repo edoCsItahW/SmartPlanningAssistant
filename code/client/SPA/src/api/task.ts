@@ -6,23 +6,24 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file theme.ts
+ * @file task.ts
  * @author edocsitahw
  * @version 1.1
- * @date 2025/12/09 12:39
+ * @date 2025/12/14 23:44
  * @desc
  * @copyrigh-t CC BY-NC-SA 2025. All rights reserved.
  * */
+import { http } from "@/utils/request";
+import type { Task } from "@/types";
 
-export type ThemeType = "light" | "dark";
 
-export interface ThemeConfig {
-    name: ThemeType;
-    label: string;
-    i18nLabelKey?: string;
-    colors: {
-        primary: string;
-        background: string;
-        text: string;
-    };
-}
+export type GetTaskResult = Task[];
+
+
+export const taskApi = {
+    async getTask(params?: undefined) {
+        const response = await http.post<GetTaskResult>("/task", { params });
+
+        return response.map(task => ({ ...task, scheduledStart: new Date(task.scheduledStart), scheduledEnd: new Date(task.scheduledEnd), dueDate: new Date(task.dueDate) }))
+    }
+};

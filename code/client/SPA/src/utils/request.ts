@@ -13,12 +13,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2025. All rights reserved.
  * */
-import axios, {
-    type AxiosInstance,
-    type AxiosRequestConfig,
-    type AxiosResponse,
-} from "axios";
-
+import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from "axios";
 
 /** @interface HttpResponse
  *
@@ -38,7 +33,6 @@ export interface HttpResponse<T = unknown> {
     success: boolean;
 }
 
-
 /**
  * @desc axios实例
  * */
@@ -50,29 +44,28 @@ const service: AxiosInstance = axios.create({
     }
 });
 
-
 // 请求拦截器
-service.interceptors.request.use(config => {
-    const token = localStorage.getItem("token");
+service.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem("token");
 
-    if (token && config.headers)
-        config.headers.Authorization = `Bearer ${token}`;
+        if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
 
-    return config;
-}, error => Promise.reject(error));
-
+        return config;
+    },
+    error => Promise.reject(error)
+);
 
 // 响应拦截器
-service.interceptors.response.use(response => {
-    const res = response.data;
+service.interceptors.response.use(
+    response => {
+        const res = response.data;
 
-    if (res.code === 200 || res.success)
-        return res.data;
-
-    else
-        return Promise.reject(new Error(res.msg || "Error"));
-}, error => Promise.reject(error));
-
+        if (res.code === 200 || res.success) return res.data;
+        else return Promise.reject(new Error(res.msg || "Error"));
+    },
+    error => Promise.reject(error)
+);
 
 export const http = {
     get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
@@ -95,6 +88,5 @@ export const http = {
         return service.patch(url, config);
     }
 };
-
 
 export default service;

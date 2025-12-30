@@ -14,7 +14,6 @@
  * @copyright CC BY-NC-SA 2025. All rights reserved.
  * */
 
-
 /** @interface IApi
  *
  * @template T 返回数据类型
@@ -30,7 +29,6 @@ export interface IApi<T = unknown> {
     success: boolean;
 }
 
-
 /** @interface IRoute
  *
  * @template T 返回数据类型
@@ -39,12 +37,11 @@ export interface IApi<T = unknown> {
  * @property {string | string[]} method 请求方法
  * @property {T} response 返回数据
  * */
-export interface IRoute<T> {
+export interface IRoute<T = unknown> {
     url: string;
     method: string | string[];
     response: T;
 }
-
 
 /** @interface HttpRequest
  *
@@ -54,14 +51,15 @@ export interface IRoute<T> {
  * @property {T} body 请求参数
  * @property {Record<string, unknown>} query 请求参数
  * @property {Record<string, string>} headers 请求头
+ * @property {Record<string, unknown>} params 请求参数
  * */
-export interface HttpRequest<T> {
+export interface HttpRequest<T = unknown> {
     url: string;
     body: T;
     query: Record<string, unknown>;
     headers: Record<string, string>;
+    params: Record<string, unknown>;
 }
-
 
 // 具体接口定义
 

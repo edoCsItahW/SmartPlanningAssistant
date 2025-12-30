@@ -5,24 +5,23 @@
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
-/**
- * @file theme.ts
- * @author edocsitahw
- * @version 1.1
- * @date 2025/12/09 12:39
- * @desc
- * @copyrigh-t CC BY-NC-SA 2025. All rights reserved.
- * */
+import { http } from "@/utils/request";
 
-export type ThemeType = "light" | "dark";
 
-export interface ThemeConfig {
-    name: ThemeType;
-    label: string;
-    i18nLabelKey?: string;
-    colors: {
-        primary: string;
-        background: string;
-        text: string;
-    };
+export interface HeatmapResult {
+    date: string,
+    cmmits: number,
+    month: number,
+    day: number,
+    week: string,
+    lastWeek?: boolean
 }
+
+
+export const heatmapApi = {
+
+    async getHeatmap(): Promise<HeatmapResult[]> {
+        return http.get<HeatmapResult[]>("/heatmap");
+    }
+
+};

@@ -14,27 +14,36 @@
  * @desc
  * @copyright CC BY-NC-SA
  * */
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 import { Setting, Check, Sunny, Moon } from "@element-plus/icons-vue";
-import { ThemeStore } from "@/stores/themeStore";
+import { ThemeStore, ThemeConfigs } from "@/stores/themeStore";
 import { mapState } from "pinia";
-import { ThemeConfigs } from "@/stores/themeStore";
 
 
 export default defineComponent({
     data() {
         return {};
     },
+
     setup() {
         const themeStore = ThemeStore();
 
         return { themeStore, ThemeConfigs };
     },
+
+    props: {
+        mode: {
+            type: String as PropType<"button" | "dropdown">,
+            default: "button"
+        }
+    },
+
     computed: {
         ...mapState(ThemeStore, {
             theme: state => state.theme
         }),
     },
+
     methods: {
         handleThemeToggle() {
             this.themeStore.toggleTheme();
@@ -44,6 +53,7 @@ export default defineComponent({
             this.themeStore.setTheme(theme);
         }
     },
+
     components: {
         Setting, Check, Sunny, Moon
     }
@@ -54,7 +64,7 @@ export default defineComponent({
 
     <div :class="{ 'theme-switcher': true, [`theme-${theme}`]: true }">
 
-        <el-tooltip :content="themeStore.theme === 'light' ? $t('themeSwitcher.template.dark') : $t('themeSwitcher.template.light')">
+        <el-tooltip v-if="mode === 'button'" :content="themeStore.theme === 'light' ? $t('themeSwitcher.template.dark') : $t('themeSwitcher.template.light')">
 
             <el-button class="theme-toggle-btn" circle @click="handleThemeToggle">
 
@@ -70,45 +80,43 @@ export default defineComponent({
 
         </el-tooltip>
 
-<!--        <el-dropdown @command="handleThemeSelect" trigger="click" class="theme-dropdown">-->
+        <el-dropdown v-else @command="handleThemeSelect" trigger="click" class="theme-dropdown">
 
-<!--            <el-button circle>-->
+            <el-button circle>
 
-<!--                <template #icon>-->
+                <template #icon>
 
-<!--                    <setting />-->
+                    <setting />
 
-<!--                </template>-->
+                </template>
 
-<!--            </el-button>-->
+            </el-button>
 
-<!--            <template #dropdown>-->
+            <template #dropdown>
 
-<!--                <el-dropdown-menu>-->
+                <el-dropdown-menu>
 
-<!--                    <el-dropdown-item v-for="t in ThemeConfigs" :key="t.name" :command="t.name" :class="{ active: theme === t.name }">-->
+                    <el-dropdown-item v-for="t in ThemeConfigs" :key="t.name" :command="t.name" :class="{ active: theme === t.name }">
 
-<!--                        <div class="theme-option">-->
+                        <div class="theme-option">
 
-<!--                            <span class="color-dot" :style="{ backgroundColor: t.colors.primary }" />-->
+                            <span>{{ t.i18nLabelKey ? $t(t.i18nLabelKey) : t.label }}</span>
 
-<!--                            <span>{{ t.label }}</span>-->
+                            <el-icon v-if="theme === t.name" class="check-icon">
 
-<!--                            <el-icon v-if="theme === t.name" class="check-icon">-->
+                                <check />
 
-<!--                                <check />-->
+                            </el-icon>
 
-<!--                            </el-icon>-->
+                        </div>
 
-<!--                        </div>-->
+                    </el-dropdown-item>
 
-<!--                    </el-dropdown-item>-->
+                </el-dropdown-menu>
 
-<!--                </el-dropdown-menu>-->
+            </template>
 
-<!--            </template>-->
-
-<!--        </el-dropdown>-->
+        </el-dropdown>
 
     </div>
 
@@ -133,13 +141,6 @@ export default defineComponent({
         align-items: center
         gap: 8px
         width: 120px
-
-        .color-dot
-            width: 12px
-            height: 12px
-            border-radius: 50%
-            display: inline-block
-
 
         .check-icon
             margin-left: auto

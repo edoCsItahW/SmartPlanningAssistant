@@ -16,32 +16,28 @@
 import { defineStore } from "pinia";
 import i18n, { elLangMap } from "@/locales";
 import { type LanguageType } from "@/locales/types";
-
+import type { Nullable } from "@/types";
 
 export const LangStore = defineStore("language", {
     state() {
         return {
             language: "en-US" as LanguageType,
-            defaultLanguage: "en-US" as LanguageType,
-        }
-    },
-    getters: {
-        getRencentLanguage() {
-            return localStorage.getItem("language") as LanguageType || "en-US";
-        }
+            recentLanguage: localStorage.getItem("language") as Nullable<LanguageType>,
+            defaultLanguage: "en-US" as LanguageType
+        };
     },
     actions: {
         setRencentLanguage(lang: LanguageType) {
             localStorage.setItem("language", lang);
+            this.recentLanguage = lang;
         },
 
         setLanguage(lang: LanguageType) {
-            if (this.language !== lang && lang !== this.defaultLanguage)
-                this.setRencentLanguage(lang);
+            if (this.language !== lang && lang !== this.defaultLanguage) this.setRencentLanguage(lang);
 
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
-            i18n.global.locale.value = lang;  // 确为ref，但value没有被识别
+            i18n.global.locale.value = lang; // 确为ref，但value没有被识别
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (window as any).$elLocale = elLangMap[lang];
@@ -50,10 +46,7 @@ export const LangStore = defineStore("language", {
         },
 
         toggleLanguage() {
-            this.setLanguage(this.language === this.defaultLanguage
-                ? this.getRencentLanguage
-                 : this.defaultLanguage);
+            this.setLanguage(this.language === this.defaultLanguage ? this.recentLanguage || this.defaultLanguage : this.defaultLanguage);
         }
     }
 });
-
